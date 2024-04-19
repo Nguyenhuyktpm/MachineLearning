@@ -5,18 +5,24 @@
 package com.NQH.MachineLearning.Exception;
 
 import com.NQH.MachineLearning.DTO.Request.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
  *
  * @author nqhkt
  */
-public class GlobalException {
+@Slf4j
+@ControllerAdvice
+public class GlobalExceptionHandle {
 
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
+        log.error("Exception: ", exception);
         ApiResponse apiResponse = new ApiResponse();
 
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
@@ -33,7 +39,9 @@ public class GlobalException {
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
 
-        return ResponseEntity.badRequest().body(apiResponse);
+        return ResponseEntity
+                .status(errorCode.getHttpStatusCode())
+                .body(apiResponse);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -54,5 +62,16 @@ public class GlobalException {
         apiResponse.setMessage(errorCode.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
+    }
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<ApiResponse> hanldingAccessDenied (AccessDeniedException exception){
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZE;
+        
+        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(
+        ApiResponse.builder()
+                    .code(errorCode.getCode())
+                    .message(errorCode.getMessage())
+                .build()
+        );
     }
 }

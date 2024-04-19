@@ -17,7 +17,7 @@ import org.mapstruct.MappingTarget;
  */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-        UserEntity toUser(UserCreationRequest request);
+    UserEntity toUser(UserCreationRequest request);
 
     UserResponse toUserResponse(UserEntity user);
 

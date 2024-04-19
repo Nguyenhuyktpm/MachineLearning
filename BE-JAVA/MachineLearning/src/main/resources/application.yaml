@@ -1,16 +1,20 @@
 server:
   port: 8080
-  servlet:
-    context-path: /identity
+
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/identity_service"
+    url: "jdbc:mysql://localhost:3301/machinelearning"
     username: root
-    password: root
+    password: 08112001
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
 
 jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
+application:
+    security:
+        api-key: "bb92a925-c464-4376-9a27-bd54e40f9caf"
+    
+    

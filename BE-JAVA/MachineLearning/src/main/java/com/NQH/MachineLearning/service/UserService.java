@@ -8,14 +8,18 @@ import com.NQH.MachineLearning.DTO.Request.UserCreationRequest;
 import com.NQH.MachineLearning.DTO.Request.UserUpdateRequest;
 import com.NQH.MachineLearning.DTO.Response.UserResponse;
 import com.NQH.MachineLearning.Entity.UserEntity;
+import com.NQH.MachineLearning.Enums.Role;
 import com.NQH.MachineLearning.Exception.AppException;
 import com.NQH.MachineLearning.Exception.ErrorCode;
 import com.NQH.MachineLearning.Mapper.UserMapper;
 import com.NQH.MachineLearning.Repository.UserRepository;
+import java.util.HashSet;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,7 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
 
+    PasswordEncoder passwordEncoder;
     UserRepository userRepository;
     UserMapper userMapper;
 
@@ -38,13 +43,17 @@ public class UserService {
         }
 
         UserEntity user = userMapper.toUser(request);
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+
+        user.setRoles(roles);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public UserResponse updateUser(String userId, UserUpdateRequest  request) {
+    public UserResponse updateUser(String userId, UserUpdateRequest request) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -57,6 +66,7 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+//    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
@@ -65,5 +75,15 @@ public class UserService {
     public UserResponse getUser(String id) {
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found")));
+    }
+
+    public UserResponse getMyInfo() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        UserEntity user = userRepository.findByUsername(name).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userMapper.toUserResponse(user);
     }
 }
