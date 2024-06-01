@@ -25,10 +25,9 @@ import lombok.experimental.FieldDefaults;
 public class UserCreationRequest {
     @Size(min = 3,message = "USERNAME_INVALID")
     String username;
-
     @Size(min = 8, message = "INVALID_PASSWORD")
     String password;
-    String firstName;
-    String lastName;
+    String fullname;
+    String email;
     LocalDate dob;
 }

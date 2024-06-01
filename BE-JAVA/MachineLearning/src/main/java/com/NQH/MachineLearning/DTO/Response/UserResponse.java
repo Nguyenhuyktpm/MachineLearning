@@ -25,8 +25,8 @@ public class UserResponse {
 
     String id;
     String username;
-    String firstName;
-    String lastName;
+    String fullname;
+    String email;
     LocalDate dob;
     Set<String> roles;
 }

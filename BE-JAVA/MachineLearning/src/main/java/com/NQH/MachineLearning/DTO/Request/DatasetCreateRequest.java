@@ -4,26 +4,27 @@
  */
 package com.NQH.MachineLearning.DTO.Request;
 
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 /**
  *
  * @author nqhkt
  */
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    String password;
-    String fullname;
-    String email;
-    LocalDate dob;
+public class DatasetCreateRequest {
+
+    String name;
+    String type;
+    String userId;
 }

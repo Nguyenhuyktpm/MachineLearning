@@ -8,7 +8,7 @@ spring:
     password: 08112001
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
 
 jwt:
@@ -16,5 +16,6 @@ jwt:
 application:
     security:
         api-key: "bb92a925-c464-4376-9a27-bd54e40f9caf"
-    
-    
+        
+file:
+    upload-path: "E:/MCLN/Data"

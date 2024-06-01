@@ -5,6 +5,7 @@
 package com.NQH.MachineLearning.Exception;
 
 import com.NQH.MachineLearning.DTO.Request.ApiResponse;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -73,5 +74,25 @@ public class GlobalExceptionHandle {
                     .message(errorCode.getMessage())
                 .build()
         );
+        
+        
+        
     }
+    
+    
+    
+//        @ExceptionHandler(value = IOException.class)
+//    ResponseEntity<ApiResponse> hanldingAccessDenied (IOException exception){
+//        ErrorCode errorCode = ErrorCode.UNAUTHORIZE;
+//        
+//        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(
+//        ApiResponse.builder()
+//                    .code(errorCode.getCode())
+//                    .message(errorCode.getMessage())
+//                .build()
+//        );
+//        
+//        
+//        
+//    }
 }

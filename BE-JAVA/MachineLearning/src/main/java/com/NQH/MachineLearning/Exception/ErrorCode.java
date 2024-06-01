@@ -24,6 +24,8 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1005, "User not existed",HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1006, "Unauthenticated",HttpStatus.UNAUTHORIZED),
     UNAUTHORIZE(1007,"Unauthorize",HttpStatus.FORBIDDEN)
+    
+    
     ;
 
     ErrorCode(int code, String message,HttpStatusCode httpStatusCode) {

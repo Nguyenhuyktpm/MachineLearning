@@ -4,7 +4,7 @@
  */
 package com.NQH.MachineLearning.DTO.Request;
 
-import java.time.LocalDate;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,13 +17,16 @@ import lombok.experimental.FieldDefaults;
  * @author nqhkt
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    String password;
-    String fullname;
-    String email;
-    LocalDate dob;
+public class TrainModelRequest {
+
+    
+    private List<String> trainFileLinks;
+    private String testFileLink;
+    private List<String> labelsFeatures;
+    private String labelTarget;
+    private String algorithm;
 }

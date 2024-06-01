@@ -2,9 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.NQH.MachineLearning.DTO.Request;
+package com.NQH.MachineLearning.DTO.Response;
 
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,13 +16,13 @@ import lombok.experimental.FieldDefaults;
  * @author nqhkt
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    String password;
-    String fullname;
-    String email;
-    LocalDate dob;
+public class DatasetResponse {
+    String id;
+    String name;
+    String type;
+    String location;
 }
