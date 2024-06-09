@@ -16,8 +16,11 @@ import com.NQH.MachineLearning.Entity.TrainingDataEntity;
 import com.NQH.MachineLearning.Mapper.DataMapper;
 import com.NQH.MachineLearning.Mapper.TrainingMapper;
 import com.NQH.MachineLearning.repository.DataRepository;
+import com.NQH.MachineLearning.repository.ModelRepository;
 import com.NQH.MachineLearning.repository.TrainingDataRepository;
 import com.NQH.MachineLearning.repository.TrainingRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,38 +40,39 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class TrainingService {
-
+    
     FlaskApiService flaskApiService;
     TrainingRepository trainingRepository;
     TrainingDataRepository trainingDataRepository;
     DataRepository dataRepository;
     TrainingMapper trainingMapper;
     DataMapper dataMapper;
-
+    ModelRepository modelRepository;
+    
     public String creationTraining(TrainingCreationRequest request) {
         TrainingEntity training = TrainingEntity.builder()
                 .label_target(request.getLabels_targets())
                 .labels_feature(request.getLabels_features())
                 .build();
-
+        
         TrainingDataEntity training_data = TrainingDataEntity.builder()
                 .data(dataRepository.findById(request.getData_id()).get())
                 .training(training)
                 .build();
-
+        
         trainingRepository.save(training);
         trainingDataRepository.save(training_data);
-
+        
         return "Creation Success";
     }
-
+    
     public List<TrainingResponse> getAllTraining() {
-
+        
         return trainingRepository.findAll()
                 .stream()
                 .map(trainingMapper::toTrainingResonse).toList();
     }
-
+    
     public TrainingResponse getTraining(String trainingId) {
         TrainingEntity training = trainingRepository.findById(trainingId).orElseThrow(() -> new RuntimeException("Training not found"));
         TrainingResponse trainingResponse = trainingMapper.toTrainingResonse(training);
@@ -76,33 +80,52 @@ public class TrainingService {
         List<DataEntity> datas = trainingData.stream()
                 .map(TrainingDataEntity::getData) // Lấy thuộc tính data từ TrainingDataEntity
                 .collect(Collectors.toList());
-
+        
         List<DataResponse> dataResponse = dataMapper.toDataResponseList(datas);
         trainingResponse.setData(dataResponse);
         return trainingResponse;
     }
-
-    public String trainModel(TrainModelRequest request, String id) {
-
+    
+    public String trainModel(TrainModelRequest request, String id) throws JsonProcessingException {
+        
         TrainingEntity training = trainingRepository.findById(id).get();
         List<TrainingDataEntity> trainingDatas = trainingDataRepository.findAllByTraining(training);
+        
         TrainingDataEntity trainingData = trainingDatas.get(0);
         DataEntity data = trainingData.getData();
         DatasetEntity dataset = data.getDataset();
         String type = dataset.getType();
+        log.warn("Training: "+ training.getId());
+        
         Map<String, Object> response = new HashMap<>();
         
-            response = flaskApiService.callFlaskTrainingApi(
-                    request.getTrainFileLinks(),
-                    request.getTestFileLink(),
-                    request.getLabelsFeatures(),
-                    request.getLabelTarget(),
-                    request.getAlgorithm(),
-                    type);
-            log.warn("Response: " + response.toString());
+        response = flaskApiService.callFlaskTrainingApi(
+                request.getTrainFileLinks(),
+                request.getTestFileLink(),
+                request.getLabelsFeatures(),
+                request.getLabelTarget(),
+                request.getAlgorithm(),
+                type);
         
-        log.warn("Type: " + type);
-        log.warn("Response: " + response.toString());
+        log.warn(response.toString());
+
+        Map<String, Object> metrics = new HashMap<>();
+        ModelEntity model = new ModelEntity();
+        response.forEach(
+                (String key, Object value)
+                -> {
+            if (key.equals("model_path")) {
+               model.setLocation(value.toString());
+            }
+            else{
+                metrics.put(key, value);
+            }
+        });
+        model.setMetrics(new ObjectMapper().writeValueAsString(metrics));
+//        log.warn("Training: "+ training.toString() );
+        model.setTraining(training);
+        modelRepository.save(model);
         return "Sucees";
     }
 }
+ 

@@ -1,14 +1,14 @@
 import { ClusterOutlined, ContactsOutlined, HomeOutlined, PlusOutlined } from '@ant-design/icons';
 import { GridContent } from '@ant-design/pro-components';
 import { useRequest } from '@umijs/max';
-import { Avatar, Card, Col, Divider, Input, InputRef, Row, Tag } from 'antd';
-import React, { useRef, useState } from 'react';
+import { Avatar, Card, Col, Divider, Row, Tag } from 'antd';
+import React, { useState } from 'react';
 import useStyles from './Center.style';
 import Applications from './components/Applications';
 import Articles from './components/Articles';
 import Projects from './components/Projects';
-import type { CurrentUser, tabKeyType, TagType } from './data.d';
-import { queryCurrent } from './service';
+import { getCurrentUser } from '@/services/userIdService';
+
 const operationTabList = [
   {
     key: 'articles',
@@ -56,132 +56,40 @@ const operationTabList = [
     ),
   },
 ];
-const TagList: React.FC<{
-  tags: CurrentUser['tags'];
-}> = ({ tags }) => {
-  const { styles } = useStyles();
-  const ref = useRef<InputRef | null>(null);
-  const [newTags, setNewTags] = useState<TagType[]>([]);
-  const [inputVisible, setInputVisible] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>('');
-  const showInput = () => {
-    setInputVisible(true);
-    if (ref.current) {
-      // eslint-disable-next-line no-unused-expressions
-      ref.current?.focus();
-    }
-  };
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
-  const handleInputConfirm = () => {
-    let tempsTags = [...newTags];
-    if (inputValue && tempsTags.filter((tag) => tag.label === inputValue).length === 0) {
-      tempsTags = [
-        ...tempsTags,
-        {
-          key: `new-${tempsTags.length}`,
-          label: inputValue,
-        },
-      ];
-    }
-    setNewTags(tempsTags);
-    setInputVisible(false);
-    setInputValue('');
-  };
-  return (
-    <div className={styles.tags}>
-      <div className={styles.tagsTitle}>标签</div>
-      {(tags || []).concat(newTags).map((item) => (
-        <Tag key={item.key}>{item.label}</Tag>
-      ))}
-      {inputVisible && (
-        <Input
-          ref={ref}
-          type="text"
-          size="small"
-          style={{
-            width: 78,
-          }}
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={handleInputConfirm}
-          onPressEnter={handleInputConfirm}
-        />
-      )}
-      {!inputVisible && (
-        <Tag
-          onClick={showInput}
-          style={{
-            borderStyle: 'dashed',
-          }}
-        >
-          <PlusOutlined />
-        </Tag>
-      )}
-    </div>
-  );
-};
+
 const Center: React.FC = () => {
   const { styles } = useStyles();
-  const [tabKey, setTabKey] = useState<tabKeyType>('articles');
+  const [tabKey, setTabKey] = useState('articles');
 
-  //  获取用户信息
-  const { data: currentUser, loading } = useRequest(() => {
-    return queryCurrent();
-  });
+  // Lấy thông tin người dùng từ API
+  const { data: currentUser, loading } = useRequest(() => getCurrentUser());
 
-  //  渲染用户信息
-  const renderUserInfo = ({ title, group, geographic }: Partial<CurrentUser>) => {
+  // Hiển thị thông tin người dùng
+  const renderUserInfo = ({ fullname, email, dob, roles }) => {
     return (
       <div className={styles.detail}>
         <p>
-          <ContactsOutlined
-            style={{
-              marginRight: 8,
-            }}
-          />
-          {title}
+          <ContactsOutlined style={{ marginRight: 8 }} />
+          {fullname}
         </p>
         <p>
-          <ClusterOutlined
-            style={{
-              marginRight: 8,
-            }}
-          />
-          {group}
+          <ClusterOutlined style={{ marginRight: 8 }} />
+          {email}
         </p>
         <p>
-          <HomeOutlined
-            style={{
-              marginRight: 8,
-            }}
-          />
-          {
-            (
-              geographic || {
-                province: {
-                  label: '',
-                },
-              }
-            ).province.label
-          }
-          {
-            (
-              geographic || {
-                city: {
-                  label: '',
-                },
-              }
-            ).city.label
-          }
+          <HomeOutlined style={{ marginRight: 8 }} />
+          {dob}
+        </p>
+        <p>
+          <HomeOutlined style={{ marginRight: 8 }} />
+          {roles?.join(', ')}
         </p>
       </div>
     );
   };
 
-  // 渲染tab切换
-  const renderChildrenByTabKey = (tabValue: tabKeyType) => {
+  // Hiển thị nội dung theo tab
+  const renderChildrenByTabKey = (tabValue) => {
     if (tabValue === 'projects') {
       return <Projects />;
     }
@@ -193,47 +101,24 @@ const Center: React.FC = () => {
     }
     return null;
   };
+
   return (
     <GridContent>
       <Row gutter={24}>
         <Col lg={7} md={24}>
           <Card
             bordered={false}
-            style={{
-              marginBottom: 24,
-            }}
+            style={{ marginBottom: 24 }}
             loading={loading}
           >
             {!loading && currentUser && (
               <div>
                 <div className={styles.avatarHolder}>
-                  <img alt="" src={currentUser.avatar} />
-                  <div className={styles.name}>{currentUser.name}</div>
-                  <div>{currentUser?.signature}</div>
+                  <Avatar size="large" src="/path/to/avatar.png" />
+                  <div className={styles.name}>{currentUser.username}</div>
                 </div>
                 {renderUserInfo(currentUser)}
                 <Divider dashed />
-                <TagList tags={currentUser.tags || []} />
-                <Divider
-                  style={{
-                    marginTop: 16,
-                  }}
-                  dashed
-                />
-                <div className={styles.team}>
-                  <div className={styles.teamTitle}>团队</div>
-                  <Row gutter={36}>
-                    {currentUser.notice &&
-                      currentUser.notice.map((item) => (
-                        <Col key={item.id} lg={24} xl={12}>
-                          <a href={item.href}>
-                            <Avatar size="small" src={item.logo} />
-                            {item.member}
-                          </a>
-                        </Col>
-                      ))}
-                  </Row>
-                </div>
               </div>
             )}
           </Card>
@@ -244,9 +129,7 @@ const Center: React.FC = () => {
             bordered={false}
             tabList={operationTabList}
             activeTabKey={tabKey}
-            onTabChange={(_tabKey: string) => {
-              setTabKey(_tabKey as tabKeyType);
-            }}
+            onTabChange={(key) => setTabKey(key)}
           >
             {renderChildrenByTabKey(tabKey)}
           </Card>
@@ -255,4 +138,5 @@ const Center: React.FC = () => {
     </GridContent>
   );
 };
+
 export default Center;

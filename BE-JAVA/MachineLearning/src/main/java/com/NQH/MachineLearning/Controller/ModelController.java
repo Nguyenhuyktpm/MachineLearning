@@ -4,9 +4,15 @@
  */
 package com.NQH.MachineLearning.Controller;
 
+import com.NQH.MachineLearning.DTO.Request.ApiResponse;
+import com.NQH.MachineLearning.DTO.Response.ModelResponse;
+import com.NQH.MachineLearning.service.ModelService;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,5 +25,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ModelController {
+    ModelService modelService;
     
+    @GetMapping
+    public ApiResponse<List<ModelResponse>> getAllModel() {
+        return ApiResponse.<List<ModelResponse>>builder()
+                .result(modelService.getAllModel())
+                .build();
+    }
+      @GetMapping("/{modelId}")
+      public ApiResponse<ModelResponse> getModel (@PathVariable String modelId){
+          return ApiResponse.<ModelResponse>builder()
+                  .result(modelService.getModel(modelId))
+                  .build();
+      }
 }

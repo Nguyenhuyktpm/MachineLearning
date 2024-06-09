@@ -30,7 +30,7 @@ public class TrainingResponse {
     LocalDateTime training_end;
     String training_status;
     
-    MetricsResponse metrics;
+
     
     ModelResponse model;
     

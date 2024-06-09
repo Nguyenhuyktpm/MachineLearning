@@ -4,7 +4,6 @@
  */
 package com.NQH.MachineLearning.Exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,7 +22,8 @@ public enum ErrorCode {
     INVALID_PASSWORD(1004, "Password must be at least 8 characters",HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(1005, "User not existed",HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1006, "Unauthenticated",HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZE(1007,"Unauthorize",HttpStatus.FORBIDDEN)
+    UNAUTHORIZE(1007,"Unauthorize",HttpStatus.FORBIDDEN),
+    LABELINCORERCT(1008,"One or more specified labels are not in the train dataset columns",HttpStatus.BAD_REQUEST)
     
     
     ;
@@ -37,6 +37,4 @@ public enum ErrorCode {
     private int code;
     private String message;
     private HttpStatusCode httpStatusCode;
-
-
 }

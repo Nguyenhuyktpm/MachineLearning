@@ -34,7 +34,6 @@ public class DatasetEntity extends BaseEntity {
 
     String name;
     String type;
-    String location;
 
     @OneToMany(mappedBy = "dataset")
     List<DataEntity> data;

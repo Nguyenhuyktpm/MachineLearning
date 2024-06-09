@@ -7,11 +7,13 @@ package com.NQH.MachineLearning.Exception;
 import com.NQH.MachineLearning.DTO.Request.ApiResponse;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  *
@@ -64,35 +66,36 @@ public class GlobalExceptionHandle {
 
         return ResponseEntity.badRequest().body(apiResponse);
     }
+
     @ExceptionHandler(value = AccessDeniedException.class)
-    ResponseEntity<ApiResponse> hanldingAccessDenied (AccessDeniedException exception){
+    ResponseEntity<ApiResponse> hanldingAccessDenied(AccessDeniedException exception) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZE;
-        
+
         return ResponseEntity.status(errorCode.getHttpStatusCode()).body(
-        ApiResponse.builder()
-                    .code(errorCode.getCode())
-                    .message(errorCode.getMessage())
-                .build()
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
         );
-        
-        
-        
+
     }
-    
-    
-    
-//        @ExceptionHandler(value = IOException.class)
-//    ResponseEntity<ApiResponse> hanldingAccessDenied (IOException exception){
-//        ErrorCode errorCode = ErrorCode.UNAUTHORIZE;
-//        
-//        return ResponseEntity.status(errorCode.getHttpStatusCode()).body(
-//        ApiResponse.builder()
-//                    .code(errorCode.getCode())
-//                    .message(errorCode.getMessage())
-//                .build()
-//        );
-//        
-//        
-//        
-//    }
+
+    @ExceptionHandler(value = HttpClientErrorException.BadRequest.class)
+    ResponseEntity<ApiResponse> hanldingLabelError(HttpClientErrorException.BadRequest exception) {
+        String enumKey = exception.getResponseBodyAsString();
+        ErrorCode errorCode = ErrorCode.LABELINCORERCT;
+        
+        try {
+            errorCode = ErrorCode.valueOf(enumKey);
+        } catch (IllegalArgumentException e) {
+
+        }
+        
+        ApiResponse apiResponse = new ApiResponse();
+
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+        
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
 }

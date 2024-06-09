@@ -9,6 +9,7 @@ import com.NQH.MachineLearning.DTO.Request.TrainModelRequest;
 import com.NQH.MachineLearning.DTO.Request.TrainingCreationRequest;
 import com.NQH.MachineLearning.DTO.Response.TrainingResponse;
 import com.NQH.MachineLearning.service.TrainingService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class TrainingController {
     }
     
     @PostMapping("{trainingId}")
-    ApiResponse<String> trainModel(@PathVariable String trainingId,@RequestBody TrainModelRequest request) {
+    ApiResponse<String> trainModel(@PathVariable String trainingId,@RequestBody TrainModelRequest request) throws JsonProcessingException {
 
         return ApiResponse.<String>builder()
                 .result(trainingService.trainModel(request,trainingId))

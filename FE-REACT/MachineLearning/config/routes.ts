@@ -265,4 +265,11 @@ export default [
     component: '404',
     path: '/*',
   },
+
+  {
+    path: '/list/search/users',
+    name: 'Users',
+    icon: 'table',
+    component: './ListTableList',
+  },
 ];

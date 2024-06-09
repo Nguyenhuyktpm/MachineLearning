@@ -39,14 +39,8 @@ public class TrainingEntity extends BaseEntity {
     LocalDateTime training_end;
     String training_status;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "metrics_id",referencedColumnName = "id")
-    MetricEntity metrics;
-    
-    @OneToOne
-    @JoinColumn(name = "model_id")
+    @OneToOne(mappedBy = "training")
     ModelEntity model;
-    
     
     @OneToMany(mappedBy = "training")
     List<TrainingDataEntity> training_datas;

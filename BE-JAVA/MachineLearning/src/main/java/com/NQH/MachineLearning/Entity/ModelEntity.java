@@ -4,6 +4,8 @@
  */
 package com.NQH.MachineLearning.Entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,9 +15,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 /**
@@ -30,14 +30,16 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ModelEntity extends BaseEntity{
-    String description;
-    String achitecture;
+    String location;
 
     @ManyToOne
     @JoinColumn(name = "dataset_id")
     DatasetEntity dataset;
     
-    @OneToOne(mappedBy = "model")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "training_id",referencedColumnName = "id")
     TrainingEntity training;
     
+    @Column(columnDefinition = "json")
+    String metrics;
 }
