@@ -42,7 +42,7 @@ public class DatasetController {
                 .result(datasetService.createDataset(request))
                 .build();
     }
-    @PutMapping("/{id}")
+    @PutMapping("/{datasetId}")
     ApiResponse<DatasetResponse> updateDataset(@PathVariable String id, @RequestBody DatasetUpdateRequest request) {
         return ApiResponse.<DatasetResponse>builder()
                 .result(datasetService.updateDataset(id, request))
@@ -54,7 +54,7 @@ public class DatasetController {
                 .result(datasetService.getAllDataset())
                 .build();
     }
-    @GetMapping("/{id}")
+    @GetMapping("/{datasetId}")
      ApiResponse<DatasetResponse> getDataset(@PathVariable String id) {
         return ApiResponse.<DatasetResponse>builder()
                 .result(datasetService.getDataset(id))

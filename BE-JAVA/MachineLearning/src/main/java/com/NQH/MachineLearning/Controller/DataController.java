@@ -34,19 +34,19 @@ public class DataController {
     
     DataService dataService;
     
-    @PostMapping("/{id}")
-    ApiResponse<String> uploadFile(@PathVariable String id,@RequestParam("file") MultipartFile file) {
+    @PostMapping("/{dataId}")
+    ApiResponse<String> uploadFile(@PathVariable String datasetId,@RequestParam("file") MultipartFile file) {
         
         return ApiResponse.<String>builder()
-                .result(dataService.createData(file, id))
+                .result(dataService.createData(file, datasetId))
                 .build();
     }
     
-    @GetMapping("file/{dataset_id}")
-    ApiResponse<DataResponse> getFile(@PathVariable String dataset_id){
+    @GetMapping("{dataId}")
+    ApiResponse<DataResponse> getFile(@PathVariable String dataId){
         
         return ApiResponse.<DataResponse>builder()
-                .result(dataService.getData(dataset_id))
+                .result(dataService.getData(dataId))
                 .build();
     }
     
@@ -59,7 +59,7 @@ public class DataController {
     }
     
     
-    @GetMapping("labels/{id}")
+    @GetMapping("labels/{DataId}")
     ApiResponse<List<String>> getLabels(@PathVariable String id) throws IOException{
         
         return ApiResponse.<List<String>>builder()

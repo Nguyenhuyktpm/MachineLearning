@@ -41,8 +41,8 @@ public class DatasetService {
         return datasetMapper.toDatasetResponse(datasetRepository.save(dataset));
     }
 
-    public DatasetResponse updateDataset(String datasetId, DatasetUpdateRequest request) {
-        DatasetEntity dataset = datasetRepository.findById(datasetId)
+    public DatasetResponse updateDataset(String id, DatasetUpdateRequest request) {
+        DatasetEntity dataset = datasetRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Dataset not found"));
         
         log.warn("Before: "+ dataset.toString());
