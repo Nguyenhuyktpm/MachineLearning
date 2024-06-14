@@ -13,7 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -38,5 +41,11 @@ public class ModelController {
           return ApiResponse.<ModelResponse>builder()
                   .result(modelService.getModel(modelId))
                   .build();
+      }
+      
+      @PostMapping("/{modelId}")
+      public ApiResponse<String> upgradeModel (@PathVariable String modelId,@RequestParam List<String>  dataId){
+          return ApiResponse.<String>builder()
+                  .result(modelService.updateModel(modelId,dataId))
       }
 }

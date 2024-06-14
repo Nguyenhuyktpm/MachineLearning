@@ -24,5 +24,5 @@ import lombok.experimental.FieldDefaults;
 public class TrainingCreationRequest {
     List<String> labels_features;
     String labels_targets;
-    String data_id;
+    List<String> data_id;
 }

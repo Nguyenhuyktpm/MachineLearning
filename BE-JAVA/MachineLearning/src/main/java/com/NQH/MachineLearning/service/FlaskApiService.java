@@ -64,4 +64,27 @@ public class FlaskApiService {
 
         return response.getBody();
     }
+
+    public Map<String, Object> callFlaskPretrainedModelApi(
+            String modelLocation,
+            List<String> dataFileLink,
+            List<String> labelsFeatures,
+            String labelTarget) {
+
+        String url = "http://localhost:5000/use_pretrained_model";
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model_location", modelLocation);
+        requestBody.put("data_file_link", dataFileLink);
+        requestBody.put("labels_features", labelsFeatures);
+        requestBody.put("label_target", labelTarget);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Map.class);
+
+        return response.getBody();
+    }
 }

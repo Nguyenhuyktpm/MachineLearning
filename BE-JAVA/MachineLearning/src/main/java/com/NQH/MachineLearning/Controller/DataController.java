@@ -34,7 +34,7 @@ public class DataController {
     
     DataService dataService;
     
-    @PostMapping("/{dataId}")
+    @PostMapping("/{datasetId}")
     ApiResponse<String> uploadFile(@PathVariable String datasetId,@RequestParam("file") MultipartFile file) {
         
         return ApiResponse.<String>builder()

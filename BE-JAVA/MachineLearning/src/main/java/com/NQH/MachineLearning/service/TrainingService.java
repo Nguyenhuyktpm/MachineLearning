@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -55,13 +55,17 @@ public class TrainingService {
                 .labels_feature(request.getLabels_features())
                 .build();
         
-        TrainingDataEntity training_data = TrainingDataEntity.builder()
-                .data(dataRepository.findById(request.getData_id()).get())
-                .training(training)
-                .build();
+        List<DataEntity> datas =  dataRepository.findAllById(request.getData_id());
+        List<TrainingDataEntity> training_data = datas.stream()
+                           .map(data -> TrainingDataEntity.builder()
+                                                .data(data)
+                                                .training(training)
+                                                .build())
+        
+                           .collect(Collectors.toList());
         
         trainingRepository.save(training);
-        trainingDataRepository.save(training_data);
+        trainingDataRepository.saveAll(training_data);
         
         return "Creation Success";
     }
@@ -86,22 +90,33 @@ public class TrainingService {
         return trainingResponse;
     }
     
-    public String trainModel(TrainModelRequest request, String id) throws JsonProcessingException {
+    public String trainModel(TrainModelRequest request, String id) 
+                    throws JsonProcessingException {
         
         TrainingEntity training = trainingRepository.findById(id).get();
         List<TrainingDataEntity> trainingDatas = trainingDataRepository.findAllByTraining(training);
-        
+        List<DataEntity> dataTrains = trainingDatas.stream()
+                .map(TrainingDataEntity::getData)
+                .toList();
+                
         TrainingDataEntity trainingData = trainingDatas.get(0);
         DataEntity data = trainingData.getData();
         DatasetEntity dataset = data.getDataset();
         String type = dataset.getType();
-        log.warn("Training: "+ training.getId());
+        
         
         Map<String, Object> response = new HashMap<>();
         
+        
+        DataEntity dataTest =  dataRepository.findById(request.getDataTestId()).get();
+        List<String> dataTrainsLocation = dataTrains.stream()
+                                                    .map(DataEntity::getLocation)
+                                                    .toList();
+        String dataTestLocation = dataTest.getLocation();
+        
         response = flaskApiService.callFlaskTrainingApi(
-                request.getTrainFileLinks(),
-                request.getTestFileLink(),
+                dataTrainsLocation,
+                dataTestLocation,
                 request.getLabelsFeatures(),
                 request.getLabelTarget(),
                 request.getAlgorithm(),
@@ -128,4 +143,3 @@ public class TrainingService {
         return "Sucees";
     }
 }
- 

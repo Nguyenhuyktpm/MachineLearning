@@ -51,10 +51,15 @@ def train_classification_model(X_train, y_train, algorithm):
         model = DecisionTreeClassifier()
     elif algorithm == 'XGBoostClassifier':
         model = xgb.XGBClassifier()
-    else:
+    else: 
         raise ValueError(f"Unsupported algorithm: {algorithm}")
 
     model.fit(X_train, y_train)
+    return model
+
+def load_model(model_path):
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
     return model
 
 @app.route("/training_regression", methods=['POST'])
@@ -184,6 +189,63 @@ def classification():
 
     return jsonify(response)
 
+
+@app.route("/use_pretrained_model", methods=['POST'])
+def use_pretrained_model():
+    model_location = request.json.get('model_location')
+    data_file_links = request.json.get('data_file_links')
+    labels_features = request.json.get('labels_features')
+    label_target = request.json.get('label_target')
+
+    if not all([model_location, data_file_links, labels_features, label_target]):
+        return jsonify({'error': 'Missing required parameters'}), 400
+
+    try:
+        # Read and concatenate data from multiple CSV files
+        data = pd.concat([pd.read_csv(file) for file in data_file_links])
+    except Exception as e:
+        return jsonify({'error': f"Error reading files: {str(e)}"}), 500
+
+    label_encoder = LabelEncoder()
+    for col in data.columns:
+        if data[col].dtype == 'object':
+            data[col] = label_encoder.fit_transform(data[col])
+
+    if not all(label in data.columns for label in labels_features + [label_target]):
+        return jsonify({'error': 'One or more specified labels are not in the dataset columns.'}), 400
+
+    X = data[labels_features]
+    y = data[label_target]
+
+    try:
+        model = load_model(model_location)
+        y_pred = model.predict(X)
+
+        if isinstance(model, (LinearRegression, RandomForestRegressor, DecisionTreeRegressor, xgb.XGBRegressor)):
+            loss = mean_squared_error(y, y_pred)
+            r2 = r2_score(y, y_pred)
+            response = {
+                "mean_squared_error": loss,
+                "r2_score": r2
+            }
+        elif isinstance(model, (LogisticRegression, RandomForestClassifier, DecisionTreeClassifier, xgb.XGBClassifier)):
+            accuracy = accuracy_score(y, y_pred)
+            precision = precision_score(y, y_pred, average='weighted')
+            recall = recall_score(y, y_pred, average='weighted')
+            f1 = f1_score(y, y_pred, average='weighted')
+            response = {
+                "accuracy": accuracy,
+                "precision": precision,
+                "recall": recall,
+                "f1_score": f1
+            }
+        else:
+            return jsonify({'error': 'Unsupported model type'}), 400
+
+    except Exception as e:
+        response = {"error": str(e)}
+
+    return jsonify(response)
 
 
 if __name__ == '__main__':    

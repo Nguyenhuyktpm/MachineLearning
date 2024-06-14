@@ -57,12 +57,11 @@ public class TrainingController {
     }
     
     @PostMapping("{trainingId}")
-    ApiResponse<String> trainModel(@PathVariable String trainingId,@RequestBody TrainModelRequest request) throws JsonProcessingException {
+    ApiResponse<String> trainModel(@PathVariable String trainingId,@RequestBody TrainModelRequest request) 
+                        throws JsonProcessingException {
 
         return ApiResponse.<String>builder()
                 .result(trainingService.trainModel(request,trainingId))
                 .build();
     }
-    
-
 }

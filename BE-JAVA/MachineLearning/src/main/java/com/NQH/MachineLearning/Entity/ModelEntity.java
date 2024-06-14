@@ -31,7 +31,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 public class ModelEntity extends BaseEntity{
     String location;
-
+    String algorithm;
     @ManyToOne
     @JoinColumn(name = "dataset_id")
     DatasetEntity dataset;

@@ -23,9 +23,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrainModelRequest {
 
-    
-    private List<String> trainFileLinks;
-    private String testFileLink;
+    private String dataTestId;
     private List<String> labelsFeatures;
     private String labelTarget;
     private String algorithm;
