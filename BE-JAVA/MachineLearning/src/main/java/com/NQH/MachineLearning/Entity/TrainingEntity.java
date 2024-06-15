@@ -41,7 +41,7 @@ public class TrainingEntity extends BaseEntity {
 
     @OneToOne(mappedBy = "training")
     ModelEntity model;
-    
+
     @OneToMany(mappedBy = "training")
     List<TrainingDataEntity> training_datas;
 }

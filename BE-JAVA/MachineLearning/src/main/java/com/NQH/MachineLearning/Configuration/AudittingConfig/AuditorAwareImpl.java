@@ -30,7 +30,7 @@ public class AuditorAwareImpl implements  AuditorAware<UserEntity>{
     @Override
     @Transactional(propagation  = Propagation.REQUIRES_NEW)
     public Optional<UserEntity> getCurrentAuditor() {
-        String username = null;
+        String username = "";
         if(SecurityContextHolder.getContext().getAuthentication() !=null){
             username = SecurityContextHolder.getContext().getAuthentication().getName();
         }

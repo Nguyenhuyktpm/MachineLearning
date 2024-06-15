@@ -48,20 +48,20 @@ public class UserService {
 
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-
+        
         user.setRoles(roles);
         return userMapper.toUserResponse(userRepository.save(user));
     }
-
+    
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userId) {
         userRepository.deleteById(userId);
     }
@@ -71,10 +71,9 @@ public class UserService {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
-
     public UserResponse getUser(String id) {
         return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
     public UserResponse getMyInfo() {

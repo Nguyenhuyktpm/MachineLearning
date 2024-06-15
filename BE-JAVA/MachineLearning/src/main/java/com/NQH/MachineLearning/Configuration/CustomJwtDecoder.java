@@ -45,7 +45,7 @@ public class CustomJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String token) throws JwtException {
         
-        log.warn("ádasd: "+signerKey);
+        
         try {
             var response = authenticationService.introspect(IntrospectRequest.builder()
                     .token(token)

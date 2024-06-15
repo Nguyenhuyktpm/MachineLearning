@@ -53,7 +53,8 @@ public class UserController {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("Username: {}", authentication.getName());
-        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+       
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info("Role"+grantedAuthority.getAuthority()));
 
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getUsers())
@@ -88,4 +89,6 @@ public class UserController {
                 .result(userService.updateUser(userId, request))
                 .build();
     }
+    
+    
 }

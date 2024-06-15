@@ -7,6 +7,8 @@ package com.NQH.MachineLearning.service;
 import com.NQH.MachineLearning.DTO.Response.DataResponse;
 import com.NQH.MachineLearning.Entity.DataEntity;
 import com.NQH.MachineLearning.Entity.DatasetEntity;
+import com.NQH.MachineLearning.Exception.AppException;
+import com.NQH.MachineLearning.Exception.ErrorCode;
 import com.NQH.MachineLearning.Mapper.DataMapper;
 import com.NQH.MachineLearning.repository.DataRepository;
 import com.NQH.MachineLearning.repository.DatasetRepository;
@@ -50,7 +52,7 @@ public class DataService {
     public String createData(MultipartFile file, String id) {
 
         DatasetEntity dataset = datasetRepository.findById(id).orElseThrow(()
-                -> new RuntimeException("Dataset not exist"));
+                -> new AppException(ErrorCode.DATA_NOT_EXISTED));
         String datasetname = dataset.getName();
         String uploadPath = Path + "/" + datasetname;
         try {
@@ -62,7 +64,7 @@ public class DataService {
             Path filePath = Paths.get(uploadPath, file.getOriginalFilename());
             Files.write(filePath, file.getBytes());
             String dataName = file.getOriginalFilename();
-            String dataLocation = uploadPath+"/"+file.getOriginalFilename();
+            String dataLocation = uploadPath + "/" + file.getOriginalFilename();
             DataEntity data = DataEntity.builder()
                     .dataset(dataset)
                     .location(dataLocation)
@@ -79,7 +81,8 @@ public class DataService {
     }
 
     public DataResponse getData(String id) {
-        DataEntity data = dataRepository.findById(id).orElseThrow(() -> new RuntimeException("Data not exist"));
+        DataEntity data = dataRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.DATA_NOT_EXISTED));
         return dataMapper.toDataResponse(data);
     }
 
@@ -91,15 +94,14 @@ public class DataService {
     }
 
     public List<String> getLabels(String id) throws IOException {
-        DataEntity data = dataRepository.findById(id).orElseThrow(() -> new RuntimeException("Data not found"));
+        DataEntity data = dataRepository.findById(id).orElseThrow(()
+                -> new AppException(ErrorCode.DATA_NOT_EXISTED));
 
         List<String> labels = new ArrayList<>();
-        String url = new String (data.getLocation());
-       
+        String url = new String(data.getLocation());
 
         try (
-                Reader reader = new FileReader(url); 
-                CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);) {
+                Reader reader = new FileReader(url); CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);) {
             for (CSVRecord csvRecord : csvParser) {
                 // Assume that the first row contains labels
                 for (String label : csvRecord) {

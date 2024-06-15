@@ -23,9 +23,11 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1005, "User not existed",HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1006, "Unauthenticated",HttpStatus.UNAUTHORIZED),
     UNAUTHORIZE(1007,"Unauthorize",HttpStatus.FORBIDDEN),
-    LABELINCORERCT(1008,"One or more specified labels are not in the train dataset columns",HttpStatus.BAD_REQUEST)
-    
-    
+    LABELINCORERCT(1008,"One or more specified labels are not in the train dataset columns",HttpStatus.BAD_REQUEST),
+    DATASET_NOT_EXISTED(1009,"Dataset not existed",HttpStatus.NOT_FOUND),
+    TRAINING_NOT_EXISTED(1010,"Training not existed",HttpStatus.NOT_FOUND),
+    MODEL_NOT_EXISTED(1011,"Model not existed",HttpStatus.NOT_FOUND),
+    DATA_NOT_EXISTED(1012,"Data not existed",HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message,HttpStatusCode httpStatusCode) {
