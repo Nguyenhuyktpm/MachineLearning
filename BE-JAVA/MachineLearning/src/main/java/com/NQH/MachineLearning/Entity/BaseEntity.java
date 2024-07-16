@@ -49,5 +49,4 @@ public abstract class BaseEntity {
     @LastModifiedBy
     String updatedBy;
 
-    String deletedBy;
 }

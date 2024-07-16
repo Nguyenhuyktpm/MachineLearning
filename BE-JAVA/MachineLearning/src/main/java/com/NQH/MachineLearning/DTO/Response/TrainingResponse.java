@@ -4,6 +4,7 @@
  */
 package com.NQH.MachineLearning.DTO.Response;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
@@ -24,13 +25,17 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrainingResponse {
     String id;
+    String name;
     List<String> labels_feature;
     String label_target;
     LocalDateTime training_start;
     LocalDateTime training_end;
     String training_status;
+    Timestamp createdAt;
+    Timestamp updatedAt;
+    String createdBy;
+    String updatedBy;
     
-
     
     ModelResponse model;
     

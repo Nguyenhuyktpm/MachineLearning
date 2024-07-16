@@ -4,6 +4,7 @@
  */
 package com.NQH.MachineLearning.DTO.Response;
 
+import java.sql.Timestamp;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,12 @@ import lombok.experimental.FieldDefaults;
 public class ModelResponse {
 
     String id;
-    String description;
-    String achitecture;
-    DatasetResponse dataset;
+   
+    String metrics;
+    
+
+    Timestamp createdAt;
+    Timestamp updatedAt;
+    String createdBy;
+    String updatedBy;
 }

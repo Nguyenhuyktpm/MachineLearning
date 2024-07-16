@@ -4,6 +4,9 @@
  */
 package com.NQH.MachineLearning.DTO.Request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -23,11 +26,14 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
+    @NotBlank(message= "USERNAME_IS_BLANK")
     @Size(min = 3,message = "USERNAME_INVALID")
     String username;
     @Size(min = 8, message = "INVALID_PASSWORD")
     String password;
+//    @Pattern(regexp = "^[a-zA-Z]+$", message = "FULLNAME_INVALID")
     String fullname;
+    @Email(message = "EMAIL_UNVALID")
     String email;
     LocalDate dob;
 }

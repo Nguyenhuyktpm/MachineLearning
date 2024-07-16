@@ -6,6 +6,7 @@ package com.NQH.MachineLearning.Entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -32,16 +33,17 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 
 public class TrainingEntity extends BaseEntity {
-
+    
+    String name;
     List<String> labels_feature;
     String label_target;
     LocalDateTime training_start;
     LocalDateTime training_end;
     String training_status;
 
-    @OneToOne(mappedBy = "training")
+    @OneToOne(mappedBy = "training",fetch = FetchType.LAZY)
     ModelEntity model;
 
-    @OneToMany(mappedBy = "training")
+    @OneToMany(mappedBy = "training",fetch = FetchType.LAZY)
     List<TrainingDataEntity> training_datas;
 }

@@ -10,6 +10,7 @@ import com.NQH.MachineLearning.DTO.Request.DatasetUpdateRequest;
 import com.NQH.MachineLearning.DTO.Response.DatasetResponse;
 import com.NQH.MachineLearning.DTO.Response.UserResponse;
 import com.NQH.MachineLearning.service.DatasetService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,15 +38,15 @@ public class DatasetController {
     DatasetService datasetService;
 
     @PostMapping("")
-    ApiResponse<DatasetResponse> createDataset(@RequestBody DatasetCreateRequest request) {
+    ApiResponse<DatasetResponse> createDataset( @RequestBody DatasetCreateRequest request) {
         return ApiResponse.<DatasetResponse>builder()
                 .result(datasetService.createDataset(request))
                 .build();
     }
     @PutMapping("/{datasetId}")
-    ApiResponse<DatasetResponse> updateDataset(@PathVariable String id, @RequestBody DatasetUpdateRequest request) {
+    ApiResponse<DatasetResponse> updateDataset(@Valid @PathVariable String datasetId, @RequestBody DatasetUpdateRequest request) {
         return ApiResponse.<DatasetResponse>builder()
-                .result(datasetService.updateDataset(id, request))
+                .result(datasetService.updateDataset(datasetId, request))
                 .build();
     }
     @GetMapping()
@@ -55,15 +56,15 @@ public class DatasetController {
                 .build();
     }
     @GetMapping("/{datasetId}")
-     ApiResponse<DatasetResponse> getDataset(@PathVariable String id) {
+     ApiResponse<DatasetResponse> getDataset(@PathVariable String datasetId) {
         return ApiResponse.<DatasetResponse>builder()
-                .result(datasetService.getDataset(id))
+                .result(datasetService.getDataset(datasetId))
                 .build();
     }
-     @DeleteMapping()
-     ApiResponse<String> deleteDataset(@PathVariable String id){
+     @DeleteMapping("/{datasetId}")
+     ApiResponse<String> deleteDataset(@PathVariable String datasetId){
          return ApiResponse.<String>builder()
-                 .message("deleted successfully")
+                 .result(datasetService.deleteDataset(datasetId))
                  .build();
      }
 }

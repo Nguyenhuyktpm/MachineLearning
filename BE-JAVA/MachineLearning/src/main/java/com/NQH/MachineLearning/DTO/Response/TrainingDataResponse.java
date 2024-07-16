@@ -24,4 +24,5 @@ public class TrainingDataResponse {
     String id;
     DataResponse data;
     TrainingResponse training;
+    
 }

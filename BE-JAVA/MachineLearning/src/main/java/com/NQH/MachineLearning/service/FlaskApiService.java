@@ -75,7 +75,7 @@ public class FlaskApiService {
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model_location", modelLocation);
-        requestBody.put("data_file_link", dataFileLink);
+        requestBody.put("data_file_links", dataFileLink);
         requestBody.put("labels_features", labelsFeatures);
         requestBody.put("label_target", labelTarget);
 

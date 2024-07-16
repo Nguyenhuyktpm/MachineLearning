@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,10 +47,18 @@ public class ModelController {
     }
 
     @PostMapping("/{modelId}")
-    public ApiResponse<String> upgradeModel(@PathVariable String modelId, @RequestParam List<String> dataId)
+    public ApiResponse<ModelResponse> upgradeModel(@PathVariable String modelId, @RequestParam List<String> dataId)
+            throws JsonProcessingException {
+        return ApiResponse.<ModelResponse>builder()
+                .result(modelService.updateModel(modelId, dataId))
+                .build();
+    }
+    
+    @DeleteMapping("/{modelId}")
+    public ApiResponse<String> deleteModel(@PathVariable String modelId)
             throws JsonProcessingException {
         return ApiResponse.<String>builder()
-                .result(modelService.updateModel(modelId, dataId))
+                .result(modelService.deleteModel(modelId))
                 .build();
     }
 }

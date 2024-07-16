@@ -22,6 +22,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrainingCreationRequest {
+    String name;
     List<String> labels_features;
     String labels_targets;
     List<String> data_id;

@@ -27,7 +27,11 @@ public enum ErrorCode {
     DATASET_NOT_EXISTED(1009,"Dataset not existed",HttpStatus.NOT_FOUND),
     TRAINING_NOT_EXISTED(1010,"Training not existed",HttpStatus.NOT_FOUND),
     MODEL_NOT_EXISTED(1011,"Model not existed",HttpStatus.NOT_FOUND),
-    DATA_NOT_EXISTED(1012,"Data not existed",HttpStatus.NOT_FOUND)
+    DATA_NOT_EXISTED(1012,"Data not existed",HttpStatus.NOT_FOUND),
+    DATA_USING(1013,"Data is using",HttpStatus.BAD_REQUEST),
+    HANDLE_FILE_ERROR(1014,"An error occurred while processing the file",HttpStatus.BAD_REQUEST),
+    DATASET_EXISTED(1015,"Dataset existed !",HttpStatus.BAD_REQUEST),
+    TRAINING_EXISTED(1016,"Training existed !",HttpStatus.BAD_REQUEST)
     ;
 
     ErrorCode(int code, String message,HttpStatusCode httpStatusCode) {
@@ -35,7 +39,6 @@ public enum ErrorCode {
         this.message = message;
         this.httpStatusCode = httpStatusCode;
     }
-
     private int code;
     private String message;
     private HttpStatusCode httpStatusCode;

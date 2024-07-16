@@ -5,6 +5,7 @@
 package com.NQH.MachineLearning.Entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -35,11 +36,11 @@ public class DataEntity extends BaseEntity{
     String name;
     String location;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dataset_id")
     DatasetEntity dataset;
     
     
-    @OneToMany(mappedBy = "data")
+    @OneToMany(mappedBy = "data",fetch = FetchType.LAZY)
     List<TrainingDataEntity> training_datas;
 }

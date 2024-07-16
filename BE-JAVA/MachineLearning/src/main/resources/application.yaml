@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3301/machinelearning"
+    url: "jdbc:mysql://localhost:3301/mcln"
     username: root
     password: 08112001
   jpa:

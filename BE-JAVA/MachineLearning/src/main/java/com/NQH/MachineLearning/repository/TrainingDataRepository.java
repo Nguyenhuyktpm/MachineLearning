@@ -16,5 +16,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TrainingDataRepository extends JpaRepository<TrainingDataEntity, String>{
     List<TrainingDataEntity> findAllByTraining(TrainingEntity training);
+    TrainingDataEntity deleteByTraining(TrainingEntity training);
+    TrainingDataEntity deleteByData(DataEntity data);
+    List<TrainingDataEntity> findByData(DataEntity data);
     
+     
 }

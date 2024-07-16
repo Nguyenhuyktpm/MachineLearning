@@ -12,10 +12,11 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -34,10 +35,10 @@ public class DataController {
     
     DataService dataService;
     
-    @PostMapping("/{datasetId}")
-    ApiResponse<String> uploadFile(@PathVariable String datasetId,@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/{datasetId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ApiResponse<DataResponse> uploadFile(@PathVariable String datasetId,@RequestPart("file") MultipartFile file) {
         
-        return ApiResponse.<String>builder()
+        return ApiResponse.<DataResponse>builder()
                 .result(dataService.createData(file, datasetId))
                 .build();
     }
@@ -59,11 +60,19 @@ public class DataController {
     }
     
     
-    @GetMapping("labels/{DataId}")
-    ApiResponse<List<String>> getLabels(@PathVariable String id) throws IOException{
+    @GetMapping("labels/{dataId}")
+    ApiResponse<List<String>> getLabels(@PathVariable String dataId) throws IOException{
         
         return ApiResponse.<List<String>>builder()
-                .result(dataService.getLabels(id))
+                .result(dataService.getLabels(dataId))
+                .build();
+    }
+    
+    @DeleteMapping("{dataId}")
+        ApiResponse<String> deleteData(@PathVariable String dataId){
+        
+        return ApiResponse.<String>builder()
+                .result(dataService.deleteData(dataId))
                 .build();
     }
 }

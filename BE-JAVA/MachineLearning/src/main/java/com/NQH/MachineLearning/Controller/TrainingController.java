@@ -7,6 +7,7 @@ package com.NQH.MachineLearning.Controller;
 import com.NQH.MachineLearning.DTO.Request.ApiResponse;
 import com.NQH.MachineLearning.DTO.Request.TrainModelRequest;
 import com.NQH.MachineLearning.DTO.Request.TrainingCreationRequest;
+import com.NQH.MachineLearning.DTO.Response.ModelResponse;
 import com.NQH.MachineLearning.DTO.Response.TrainingResponse;
 import com.NQH.MachineLearning.service.TrainingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,6 +15,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,9 +36,9 @@ public class TrainingController {
     TrainingService trainingService;
 
     @PostMapping()
-    ApiResponse<String> createTraining(@RequestBody TrainingCreationRequest request) {
+    ApiResponse<TrainingResponse> createTraining(@RequestBody TrainingCreationRequest request) {
 
-        return ApiResponse.<String>builder()
+        return ApiResponse.<TrainingResponse>builder()
                 .result(trainingService.creationTraining(request))
                 .build();
     }
@@ -55,13 +57,22 @@ public class TrainingController {
                 .build();
 
     }
-    
-    @PostMapping("{trainingId}")
-    ApiResponse<String> trainModel(@PathVariable String trainingId,@RequestBody TrainModelRequest request) 
-                        throws JsonProcessingException {
+
+    @PostMapping("/model/{trainingId}")
+    ApiResponse<ModelResponse> trainModel(@PathVariable String trainingId, @RequestBody TrainModelRequest request)
+            throws JsonProcessingException {
+
+        return ApiResponse.<ModelResponse>builder()
+                .result(trainingService.trainModel(request, trainingId))
+                .build();
+    }
+
+    @DeleteMapping("/{trainingId}")
+    ApiResponse<String> deleteTraining(@PathVariable String trainingId)
+             {
 
         return ApiResponse.<String>builder()
-                .result(trainingService.trainModel(request,trainingId))
+                .result(trainingService.deleteTraining(trainingId))
                 .build();
     }
 }

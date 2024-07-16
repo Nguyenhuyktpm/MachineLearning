@@ -17,6 +17,7 @@ import com.NQH.MachineLearning.repository.ModelRepository;
 import com.NQH.MachineLearning.repository.TrainingDataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,18 +25,22 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.util.Streams;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 
 /**
  *
  * @author nqhkt
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ModelService {
-
+    
     FlaskApiService flaskApiService;
     ModelRepository modelRepository;
     ModelMapper modelMapper;
@@ -43,7 +48,10 @@ public class ModelService {
     TrainingDataRepository trainingDataRepository;
 
     public List<ModelResponse> getAllModel() {
-        return modelRepository.findAll().stream().map(modelMapper::toModelResponse).toList();
+        return modelRepository.findByDeletedAtIsNull()
+                    .stream()
+                    .map(modelMapper::toModelResponse) 
+                    .toList();
     }
 
     public ModelResponse getModel(String modelId) {
@@ -53,7 +61,7 @@ public class ModelService {
         return modelResponse;
     }
 
-    public String updateModel(String modelId, List<String> dataId)
+    public ModelResponse updateModel(String modelId, List<String> dataId)
             throws JsonProcessingException {
 
         ModelEntity model = modelRepository.findById(modelId)
@@ -68,7 +76,10 @@ public class ModelService {
         String labelTarget = training.getLabel_target();
         Map<String, Object> response = new HashMap<>();
         Map<String, Object> metrics = new HashMap<>();
-
+        
+        log.warn(labelsFeatures.toString());
+        log.warn(labelTarget);
+        
         response = flaskApiService.callFlaskPretrainedModelApi(
                 modelLocation,
                 dataFileLink,
@@ -89,6 +100,16 @@ public class ModelService {
                 .build()).collect(Collectors.toList());
         trainingDataRepository.saveAll(trainingData);
 
-        return "Sucess!";
+        return modelMapper.toModelResponse(model);
+    }
+
+    public String deleteModel(String modelId) {
+        ModelEntity model = modelRepository.findById(modelId).orElseThrow(()
+                -> new AppException(ErrorCode.MODEL_NOT_EXISTED));
+        Timestamp deletedAt = new Timestamp(System.currentTimeMillis());
+        model.setDeletedAt(deletedAt);
+        
+        modelRepository.save(model);
+        return "Model deleted !";
     }
 }

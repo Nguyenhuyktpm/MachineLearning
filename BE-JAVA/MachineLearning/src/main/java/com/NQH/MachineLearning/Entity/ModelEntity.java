@@ -7,6 +7,7 @@ package com.NQH.MachineLearning.Entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
@@ -32,11 +33,11 @@ import lombok.experimental.FieldDefaults;
 public class ModelEntity extends BaseEntity{
     String location;
     String algorithm;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dataset_id")
     DatasetEntity dataset;
     
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "training_id",referencedColumnName = "id")
     TrainingEntity training;
     

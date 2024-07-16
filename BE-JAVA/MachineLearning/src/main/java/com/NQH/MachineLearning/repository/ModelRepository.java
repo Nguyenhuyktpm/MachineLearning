@@ -5,6 +5,7 @@
 package com.NQH.MachineLearning.repository;
 
 import com.NQH.MachineLearning.Entity.ModelEntity;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -12,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author nqhkt
  */
 public interface ModelRepository extends JpaRepository<ModelEntity, String>{
-    
+    List<ModelEntity> findByDeletedAtIsNull();
 }

@@ -4,6 +4,7 @@
  */
 package com.NQH.MachineLearning.DTO.Request;
 
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DatasetUpdateRequest {
-
+    @Size(min = 3,message = "DATASET_INVALID")
     String name;
     String type;
 }

@@ -30,7 +30,7 @@ public class SecurityConfig {
     ApiKeyFilter apiKeyFilter;
 
     private final String[] PUBLIC_ENDPOINTS = {"/users",
-        "/auth/token", "/auth/introspect", "auth/logout", "auth/refresh",};
+        "/auth/token", "/auth/introspect", "auth/logout", "auth/refresh"};
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
@@ -44,8 +44,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request
                 -> request
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-//                          .anyRequest().permitAll()
+//                        .requestMatchers("swagger-ui/**","v3/**").permitAll()
+//                        .anyRequest().authenticated()
+                          .anyRequest().permitAll()
         );
         httpSecurity.oauth2ResourceServer(oauth2
                 -> oauth2.jwt(jwtConfigurer

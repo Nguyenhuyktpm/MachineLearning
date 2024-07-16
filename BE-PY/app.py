@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify
 from sklearn.calibration import LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import f1_score, mean_absolute_error, mean_squared_error,r2_score,accuracy_score,precision_score,recall_score
+from sklearn.metrics import f1_score, log_loss, mean_absolute_error, mean_squared_error,r2_score,accuracy_score,precision_score,recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import LogisticRegression
@@ -106,6 +106,8 @@ def training_regression():
         train_loss = mean_squared_error(y_train, y_train_pred)
         test_loss = mean_squared_error(y_test, y_test_pred)
         r2 = r2_score(y_test, y_test_pred)
+        mae = mean_absolute_error(y_test, y_test_pred)
+        
 
         # Save the model
         unique_id = uuid.uuid4().hex  # Generate a unique identifier
@@ -117,6 +119,7 @@ def training_regression():
             "train_loss": train_loss,
             "test_loss": test_loss,
             "r2_score": r2,
+            "mae":mae,
             "model_path": model_path
         }
     except Exception as e:
@@ -166,6 +169,15 @@ def classification():
         y_test_pred = model.predict(X_test)
         y_train_pred = model.predict(X_train)
 
+        if hasattr(model, "predict_proba"):
+            y_test_proba = model.predict_proba(X_test)
+            y_train_proba = model.predict_proba(X_train)
+        else:
+            y_test_proba = model.decision_function(X_test)
+            y_train_proba = model.decision_function(X_train)
+        
+        train_loss = log_loss(y_train, y_train_proba)
+        test_loss = log_loss(y_test, y_test_proba)
         accuracy = accuracy_score(y_test, y_test_pred)
         precision = precision_score(y_test, y_test_pred, average='weighted')
         recall = recall_score(y_test, y_test_pred, average='weighted')
@@ -178,6 +190,8 @@ def classification():
             pickle.dump(model, f)
 
         response = {
+            "train_loss": train_loss,
+            "test_loss": test_loss,
             "accuracy": accuracy,
             "precision": precision,
             "recall": recall,
@@ -220,20 +234,31 @@ def use_pretrained_model():
     try:
         model = load_model(model_location)
         y_pred = model.predict(X)
-
         if isinstance(model, (LinearRegression, RandomForestRegressor, DecisionTreeRegressor, xgb.XGBRegressor)):
             loss = mean_squared_error(y, y_pred)
             r2 = r2_score(y, y_pred)
+            mae = mean_absolute_error(y, y_pred)
+        
             response = {
-                "mean_squared_error": loss,
-                "r2_score": r2
+                "train_loss": loss,
+                "r2_score": r2,
+                "mae":mae
             }
         elif isinstance(model, (LogisticRegression, RandomForestClassifier, DecisionTreeClassifier, xgb.XGBClassifier)):
             accuracy = accuracy_score(y, y_pred)
             precision = precision_score(y, y_pred, average='weighted')
             recall = recall_score(y, y_pred, average='weighted')
             f1 = f1_score(y, y_pred, average='weighted')
+
+            if hasattr(model, "predict_proba"):
+                y_proba = model.predict_proba(X)
+            else:
+                y_proba = model.decision_function(X)
+            
+            train_loss = log_loss(y, y_proba)
+
             response = {
+                "train_loss": train_loss,
                 "accuracy": accuracy,
                 "precision": precision,
                 "recall": recall,
@@ -246,7 +271,6 @@ def use_pretrained_model():
         response = {"error": str(e)}
 
     return jsonify(response)
-
 
 if __name__ == '__main__':    
   # py -m flask run
