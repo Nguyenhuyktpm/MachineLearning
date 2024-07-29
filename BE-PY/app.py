@@ -18,6 +18,7 @@ import xgboost as xgb
 app = Flask("Training Service")
 
 MODEL_DIR = "E:\\MCLN\\Model"
+
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 @app.route("/")
@@ -112,15 +113,19 @@ def training_regression():
         # Save the model
         unique_id = uuid.uuid4().hex  # Generate a unique identifier
         model_path = os.path.join(MODEL_DIR, f'regression_model_{unique_id}.pkl')
+        encoder_path = os.path.join(MODEL_DIR, f'label_encoder_{unique_id}.pkl')
         with open(model_path, 'wb') as f:
             pickle.dump(model, f)
+        with open(encoder_path, 'wb') as f:
+            pickle.dump(label_encoder, f)
 
         response = {
             "train_loss": train_loss,
             "test_loss": test_loss,
             "r2_score": r2,
             "mae":mae,
-            "model_path": model_path
+            "model_path": model_path,
+            "encoder_path": encoder_path
         }
     except Exception as e:
         response = {"error": str(e)}
@@ -186,8 +191,11 @@ def classification():
         # Save the model
         unique_id = uuid.uuid4().hex  # Generate a unique identifier
         model_path = os.path.join(MODEL_DIR, f'classification_model_{unique_id}.pkl')
+        encoder_path = os.path.join(MODEL_DIR, f'label_encoder_{unique_id}.pkl')
         with open(model_path, 'wb') as f:
             pickle.dump(model, f)
+        with open(encoder_path, 'wb') as f:
+            pickle.dump(label_encoder, f)
 
         response = {
             "train_loss": train_loss,
@@ -196,7 +204,8 @@ def classification():
             "precision": precision,
             "recall": recall,
             "f1_score": f1,
-            "model_path": model_path
+            "model_path": model_path,
+            "encoder_path": encoder_path
         }
     except Exception as e:
         response = {"error": str(e)}
@@ -204,19 +213,22 @@ def classification():
     return jsonify(response)
 
 
-@app.route("/use_pretrained_model", methods=['POST'])
+@app.route("/retrain_model", methods=['POST'])
 def use_pretrained_model():
     model_location = request.json.get('model_location')
+    data_file_links_old = request.json.get('data_file_links_old')
     data_file_links = request.json.get('data_file_links')
     labels_features = request.json.get('labels_features')
     label_target = request.json.get('label_target')
 
-    if not all([model_location, data_file_links, labels_features, label_target]):
+    if not all([model_location, data_file_links_old, data_file_links, labels_features, label_target]):
         return jsonify({'error': 'Missing required parameters'}), 400
 
     try:
         # Read and concatenate data from multiple CSV files
-        data = pd.concat([pd.read_csv(file) for file in data_file_links])
+        data_old = pd.concat([pd.read_csv(file) for file in data_file_links_old])
+        data_new = pd.concat([pd.read_csv(file) for file in data_file_links])
+        data = pd.concat([data_old, data_new])
     except Exception as e:
         return jsonify({'error': f"Error reading files: {str(e)}"}), 500
 
@@ -232,8 +244,17 @@ def use_pretrained_model():
     y = data[label_target]
 
     try:
-        model = load_model(model_location)
+        # Load the pretrained model
+        with open(model_location, 'rb') as model_file:
+            model = pickle.load(model_file)
+
+        # Train the model with new and old data
+        model.fit(X, y)
+
+        # Make predictions
         y_pred = model.predict(X)
+
+        # Calculate performance metrics
         if isinstance(model, (LinearRegression, RandomForestRegressor, DecisionTreeRegressor, xgb.XGBRegressor)):
             loss = mean_squared_error(y, y_pred)
             r2 = r2_score(y, y_pred)
@@ -242,7 +263,7 @@ def use_pretrained_model():
             response = {
                 "train_loss": loss,
                 "r2_score": r2,
-                "mae":mae
+                "mae": mae
             }
         elif isinstance(model, (LogisticRegression, RandomForestClassifier, DecisionTreeClassifier, xgb.XGBClassifier)):
             accuracy = accuracy_score(y, y_pred)
@@ -268,9 +289,61 @@ def use_pretrained_model():
             return jsonify({'error': 'Unsupported model type'}), 400
 
     except Exception as e:
-        response = {"error": str(e)}
+        return jsonify({"error": str(e)}), 500
+
+    # Save the updated model back to the same location
+    with open(model_location, 'wb') as model_file:
+        pickle.dump(model, model_file)
 
     return jsonify(response)
+
+@app.route("/predict", methods=['POST'])
+def predict():
+    model_location = request.json.get('model_location')
+    encoder_location = request.json.get('encoder_location')
+    data_file_link = request.json.get('data_file_link')
+    labels_features = request.json.get('labels_features')
+
+    if not all([model_location, encoder_location, data_file_link, labels_features]):
+        return jsonify({'error': 'Missing required parameters'}), 400
+
+    try:
+        # Load the model and label encoder
+        model = load_model(model_location)
+        with open(encoder_location, 'rb') as f:
+            label_encoder = pickle.load(f)
+
+        # Read the data file for prediction
+        data = pd.read_csv(data_file_link)
+
+        # Encode categorical features if any
+        for col in data.columns:
+            if data[col].dtype == 'object':
+                data[col] = label_encoder.transform(data[col])
+
+        # Check if specified labels are in the dataset
+        if not all(label in data.columns for label in labels_features):
+            return jsonify({'error': 'One or more specified labels are not in the dataset columns.'}), 400
+
+        # Select features
+        X = data[labels_features]
+
+        # Predict using the loaded model
+        predictions = model.predict(X)
+
+        # Decode predictions if necessary
+        if hasattr(model, 'classes_'):
+            predictions = label_encoder.inverse_transform(predictions)
+
+        response = {
+            "predictions": predictions.tolist()
+        }
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify(response)
+
 
 if __name__ == '__main__':    
   # py -m flask run

@@ -42,7 +42,7 @@ public class FlaskApiService {
         String url = null;
         log.warn("You started callFlaskTrainingApiClassificion");
 
-        if (datasetType.equals("classificion")) {
+        if (datasetType.equals("classification")) {
             url = "http://localhost:5000/training_classification";
         } else if (datasetType.equals("regression")) {
             url = "http://localhost:5000/training_regression";
@@ -65,16 +65,18 @@ public class FlaskApiService {
         return response.getBody();
     }
 
-    public Map<String, Object> callFlaskPretrainedModelApi(
+    public Map<String, Object> callFlaskRetrainedModelApi(
             String modelLocation,
+            List<String> dataFileLinkOld,
             List<String> dataFileLink,
             List<String> labelsFeatures,
             String labelTarget) {
 
-        String url = "http://localhost:5000/use_pretrained_model";
+        String url = "http://localhost:5000/retrain_model";
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model_location", modelLocation);
+        requestBody.put("data_file_links_old", dataFileLinkOld);
         requestBody.put("data_file_links", dataFileLink);
         requestBody.put("labels_features", labelsFeatures);
         requestBody.put("label_target", labelTarget);
@@ -83,6 +85,30 @@ public class FlaskApiService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Map.class);
+
+        return response.getBody();
+    }
+
+    public Map<String, Object> callFlaskPredictApi(
+            String modelLocation,
+            String dataFileLink,
+            List<String> labelsFeatures,
+            String encodeLocation) {
+
+        String url = "http://localhost:5000/predict";
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model_location", modelLocation);
+        requestBody.put("data_file_link", dataFileLink);
+        requestBody.put("labels_features", labelsFeatures);
+        requestBody.put("encoder_location", modelLocation);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
         ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Map.class);
 
         return response.getBody();

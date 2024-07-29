@@ -6,9 +6,13 @@ package com.NQH.MachineLearning.Entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +23,8 @@ import lombok.Data;
 
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 /**
  *
@@ -31,7 +37,11 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "user")
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEntity extends BaseEntity {
+public class UserEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
 
     String username;
     String password;
@@ -39,8 +49,16 @@ public class UserEntity extends BaseEntity {
     String email;
     LocalDate dob;
 
+    @CreatedDate
+    Timestamp createdAt;
+
+    @LastModifiedDate
+    Timestamp updatedAt;
+
+    Timestamp deletedAt;
+
     Set<String> roles;
 
-    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     List<DatasetEntity> datasets;
 }

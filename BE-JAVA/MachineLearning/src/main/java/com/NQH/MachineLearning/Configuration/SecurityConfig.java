@@ -44,9 +44,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request
                 -> request
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-//                        .requestMatchers("swagger-ui/**","v3/**").permitAll()
-//                        .anyRequest().authenticated()
-                          .anyRequest().permitAll()
+                        .requestMatchers("swagger-ui/**","v3/**").permitAll()
+                        .anyRequest().authenticated()
+//                          .anyRequest().permitAll()
         );
         httpSecurity.oauth2ResourceServer(oauth2
                 -> oauth2.jwt(jwtConfigurer

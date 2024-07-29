@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author nqhkt
  */
 
-public class AuditorAwareImpl implements  AuditorAware<UserEntity>{
+public class AuditorAwareImpl implements  AuditorAware<String>{
     
     @Autowired
     private UserRepository userRepository;
@@ -29,12 +29,13 @@ public class AuditorAwareImpl implements  AuditorAware<UserEntity>{
    
     @Override
     @Transactional(propagation  = Propagation.REQUIRES_NEW)
-    public Optional<UserEntity> getCurrentAuditor() {
+    public Optional<String> getCurrentAuditor() {
         String username = "";
         if(SecurityContextHolder.getContext().getAuthentication() !=null){
             username = SecurityContextHolder.getContext().getAuthentication().getName();
         }
+        UserEntity user = userRepository.findByUsername(username).get();
         
-        return Optional.ofNullable(userRepository.findByUsername(username)).get();
+        return Optional.ofNullable(user.getFullname());
     }
 }

@@ -51,6 +51,7 @@ public class UserController {
     ApiResponse<List<UserResponse>> getUsers() {
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
+        
 
         log.info("Username: {}", authentication.getName());
        

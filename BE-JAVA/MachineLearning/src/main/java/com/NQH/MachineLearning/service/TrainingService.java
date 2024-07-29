@@ -58,13 +58,12 @@ public class TrainingService {
 
     public TrainingResponse creationTraining(TrainingCreationRequest request) {
         log.warn(request.getName());
-        
+
         TrainingEntity oldTraining = trainingRepository.findByName(request.getName());
-        if(oldTraining != null)
-        {
+        if (oldTraining != null) {
             throw new AppException(ErrorCode.TRAINING_EXISTED);
         }
-        
+
         TrainingEntity training = TrainingEntity.builder()
                 .label_target(request.getLabels_targets())
                 .labels_feature(request.getLabels_features())
@@ -130,7 +129,7 @@ public class TrainingService {
         DatasetEntity dataset = data.getDataset();
         String type = dataset.getType();
 
-        Map<String, Object> response ;
+        Map<String, Object> response;
 
         DataEntity dataTest = dataRepository.findById(request.getDataTestId()).get();
         List<String> dataTrainsLocation = dataTrains.stream()
@@ -147,7 +146,6 @@ public class TrainingService {
                 type);
 
         log.warn(response.toString());
-
         Map<String, Object> metrics = new HashMap<>();
         ModelEntity model = new ModelEntity();
         response.forEach(
@@ -155,11 +153,15 @@ public class TrainingService {
                 -> {
             if (key.equals("model_path")) {
                 model.setLocation(value.toString());
+
+            } else if (key.equals("encoder_path")) {
+                model.setEncodeLocation(value.toString());
             } else {
                 metrics.put(key, value);
             }
         });
         model.setMetrics(new ObjectMapper().writeValueAsString(metrics));
+
 //        log.warn("Training: "+ training.toString() );
         model.setTraining(training);
         modelRepository.save(model);

@@ -33,6 +33,8 @@ import lombok.experimental.FieldDefaults;
 public class ModelEntity extends BaseEntity{
     String location;
     String algorithm;
+    String encodeLocation;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dataset_id")
     DatasetEntity dataset;

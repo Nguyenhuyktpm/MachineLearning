@@ -47,18 +47,26 @@ public class ModelController {
     }
 
     @PostMapping("/{modelId}")
-    public ApiResponse<ModelResponse> upgradeModel(@PathVariable String modelId, @RequestParam List<String> dataId)
+    public ApiResponse<ModelResponse> retrainModel(@PathVariable String modelId, @RequestParam List<String> dataId)
             throws JsonProcessingException {
         return ApiResponse.<ModelResponse>builder()
-                .result(modelService.updateModel(modelId, dataId))
+                .result(modelService.retrainModel(modelId, dataId))
                 .build();
     }
-    
+
     @DeleteMapping("/{modelId}")
     public ApiResponse<String> deleteModel(@PathVariable String modelId)
             throws JsonProcessingException {
         return ApiResponse.<String>builder()
                 .result(modelService.deleteModel(modelId))
+                .build();
+    }
+
+    @PostMapping("/predict/{modelId}")
+    public ApiResponse<String> predict(@PathVariable String modelId, @RequestParam String dataId)
+            throws JsonProcessingException {
+        return ApiResponse.<String>builder()
+                .result(modelService.predict(modelId, dataId))
                 .build();
     }
 }

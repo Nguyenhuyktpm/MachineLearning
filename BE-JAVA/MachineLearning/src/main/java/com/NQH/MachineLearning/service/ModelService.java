@@ -30,7 +30,6 @@ import org.apache.tomcat.util.http.fileupload.util.Streams;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-
 /**
  *
  * @author nqhkt
@@ -40,7 +39,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ModelService {
-    
+
     FlaskApiService flaskApiService;
     ModelRepository modelRepository;
     ModelMapper modelMapper;
@@ -49,9 +48,9 @@ public class ModelService {
 
     public List<ModelResponse> getAllModel() {
         return modelRepository.findByDeletedAtIsNull()
-                    .stream()
-                    .map(modelMapper::toModelResponse) 
-                    .toList();
+                .stream()
+                .map(modelMapper::toModelResponse)
+                .toList();
     }
 
     public ModelResponse getModel(String modelId) {
@@ -61,27 +60,36 @@ public class ModelService {
         return modelResponse;
     }
 
-    public ModelResponse updateModel(String modelId, List<String> dataId)
+    public ModelResponse retrainModel(String modelId, List<String> dataId)
             throws JsonProcessingException {
 
         ModelEntity model = modelRepository.findById(modelId)
                 .orElseThrow(()
                         -> new AppException(ErrorCode.MODEL_NOT_EXISTED));
+
         TrainingEntity training = model.getTraining();
         String modelLocation = model.getLocation();
+
         List<DataEntity> datas = dataRepository.findAllById(dataId);
 
         List<String> dataFileLink = datas.stream().map(DataEntity::getLocation).toList();
+
         List<String> labelsFeatures = training.getLabels_feature();
         String labelTarget = training.getLabel_target();
+
+        List<TrainingDataEntity> trainingDatas = trainingDataRepository.findAllByTraining(training);
+        List<DataEntity> oldDatas = trainingDatas.stream().map(TrainingDataEntity::getData).toList();
+        List<String> dataFileLinkOld = oldDatas.stream().map(DataEntity::getLocation).toList();
+
         Map<String, Object> response = new HashMap<>();
         Map<String, Object> metrics = new HashMap<>();
-        
+
         log.warn(labelsFeatures.toString());
         log.warn(labelTarget);
-        
-        response = flaskApiService.callFlaskPretrainedModelApi(
+
+        response = flaskApiService.callFlaskRetrainedModelApi(
                 modelLocation,
+                dataFileLinkOld,
                 dataFileLink,
                 labelsFeatures,
                 labelTarget);
@@ -108,8 +116,40 @@ public class ModelService {
                 -> new AppException(ErrorCode.MODEL_NOT_EXISTED));
         Timestamp deletedAt = new Timestamp(System.currentTimeMillis());
         model.setDeletedAt(deletedAt);
-        
+
         modelRepository.save(model);
         return "Model deleted !";
+    }
+
+    public String predict(String modelId, String dataId) {
+        ModelEntity model = modelRepository.findById(modelId).orElseThrow(()
+                -> new AppException(ErrorCode.MODEL_NOT_EXISTED));
+        DataEntity data = dataRepository.findById(dataId).orElseThrow(()
+                -> new AppException(ErrorCode.DATA_NOT_EXISTED));
+
+        TrainingEntity training = model.getTraining();
+        List<String> label_features = training.getLabels_feature();
+
+        Map<String, Object> response = new HashMap<>();
+
+        response = flaskApiService.callFlaskPredictApi(
+                model.getLocation(),
+                data.getLocation(),
+                label_features,
+                model.getEncodeLocation());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Lấy trường predictions từ response
+        String predictionsJson = "";
+        try {
+            // Trích xuất predictions và chuyển đổi thành JSON
+            List<String> predictions = (List<String>) response.get("predictions");
+            predictionsJson = objectMapper.writeValueAsString(predictions);
+        } catch (Exception e) {
+            // Xử lý ngoại lệ khi chuyển đổi
+            System.err.println("Error converting predictions to JSON: " + e.getMessage());
+        }
+        return predictionsJson;
     }
 }
